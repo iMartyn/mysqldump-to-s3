@@ -18,6 +18,7 @@ RUN apk --no-cache add \
 ENV MYSQLDUMP_OPTIONS --quote-names --quick --add-drop-table --add-locks --allow-keywords --disable-keys --extended-insert --single-transaction --create-options --comments --net-buffer-length=16384
 ENV MYSQLDUMP_DATABASES **All**
 ENV MYSQLDUMP_TABLES **All**
+ENV MYSQL_PORT 3306
 
 ENV AWS_BUCKET **None**
 

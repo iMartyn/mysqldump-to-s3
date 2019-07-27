@@ -18,22 +18,17 @@ if [ ! -z "${AWS_ENDPOINT}" ]; then
 fi
 
 if [ -z "${MYSQL_USER}" ]; then
-  echo "You need to set the MYSQL_ENV_MYSQL_USER environment variable."
+  echo "You need to set the MYSQL_USER environment variable."
   exit 1
 fi
 
 if [ -z "${MYSQL_PASSWORD}" ]; then
-  echo "You need to set the MYSQL_ENV_MYSQL_PASSWORD environment variable."
+  echo "You need to set the MYSQL_PASSWORD environment variable."
   exit 1
 fi
 
 if [ -z "${MYSQL_HOST}" ]; then
-  echo "You need to set the MYSQL_PORT_3306_TCP_ADDR environment variable or link to a container named MYSQL."
-  exit 1
-fi
-
-if [ -z "${MYSQL_PORT}" ]; then
-  echo "You need to set the MYSQL_PORT_3306_TCP_PORT environment variable or link to a container named MYSQL."
+  echo "You need to set the MYSQL_HOST environment variable or link to a container named MYSQL."
   exit 1
 fi
 
