@@ -13,22 +13,26 @@ if [ "${PREFIX}" = "**None**" ]; then
   exit 1
 fi
 
-if [ -z "${MYSQL_ENV_MYSQL_USER}" ]; then
+if [ ! -z "${AWS_ENDPOINT}" ]; then
+  AWS_OPTIONS="--endpoint=${AWS_ENDPOINT}"
+fi
+
+if [ -z "${MYSQL_USER}" ]; then
   echo "You need to set the MYSQL_ENV_MYSQL_USER environment variable."
   exit 1
 fi
 
-if [ -z "${MYSQL_ENV_MYSQL_PASSWORD}" ]; then
+if [ -z "${MYSQL_PASSWORD}" ]; then
   echo "You need to set the MYSQL_ENV_MYSQL_PASSWORD environment variable."
   exit 1
 fi
 
-if [ -z "${MYSQL_PORT_3306_TCP_ADDR}" ]; then
+if [ -z "${MYSQL_HOST}" ]; then
   echo "You need to set the MYSQL_PORT_3306_TCP_ADDR environment variable or link to a container named MYSQL."
   exit 1
 fi
 
-if [ -z "${MYSQL_PORT_3306_TCP_PORT}" ]; then
+if [ -z "${MYSQL_PORT}" ]; then
   echo "You need to set the MYSQL_PORT_3306_TCP_PORT environment variable or link to a container named MYSQL."
   exit 1
 fi
@@ -37,11 +41,19 @@ if [ -z "${DATE_FORMAT}" ]; then
   DATE_FORMAT="%Y/%m/%d"
 fi
 
-MYSQL_HOST_OPTS="-h $MYSQL_PORT_3306_TCP_ADDR --port $MYSQL_PORT_3306_TCP_PORT -u $MYSQL_ENV_MYSQL_USER -p$MYSQL_ENV_MYSQL_PASSWORD"
+MYSQL_HOST_OPTS="-h $MYSQL_HOST --port $MYSQL_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD"
 
-echo "Starting dump of ${MYSQLDUMP_DATABASE} database(s) from ${MYSQL_PORT_3306_TCP_ADDR}..."
+echo "Starting dump of database(s) from ${MYSQL_HOST}..."
 
-mysqldump $MYSQL_HOST_OPTS $MYSQLDUMP_OPTIONS $MYSQLDUMP_DATABASE | gzip | aws s3 cp - s3://$AWS_BUCKET/$PREFIX/$(date +"$DATE_FORMAT").sql.gz
+if [ "${MYSQLDUMP_DATABASES}" == "**All**" ]; then
+  MYSQLDUMP_DATABASES="--all-databases"
+fi
+
+if [ "${MYSQLDUMP_TABLES}" == "**All**" ]; then
+  MYSQLDUMP_TABLES=
+fi
+
+mysqldump $MYSQL_HOST_OPTS $MYSQLDUMP_OPTIONS $MYSQLDUMP_DATABASES $MYSQLDUMP_TABLES | gzip | aws ${AWS_OPTIONS} s3 cp - s3://$AWS_BUCKET/$PREFIX/$(date +"$DATE_FORMAT").sql.gz
 
 echo "Done!"
 
